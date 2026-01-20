@@ -12,9 +12,55 @@
     <header class="bg-white shadow-sm">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-gray-800">TaskFlow</h1>
-            <a href="{% url "home" %}" class="text-indigo-600 hover:text-indigo-700 font-medium">← Back to Home</a>
+            <div class="flex items-center gap-4">
+                <button id="add-task-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                    + Add Task
+                </button>
+                <a href="{% url "home" %}" class="text-indigo-600 hover:text-indigo-700 font-medium">← Back to Home</a>
+            </div>
         </div>
     </header>
+
+    <!-- Add Task Modal -->
+    <div id="task-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Add New Task</h2>
+            <form id="task-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Title</label>
+                    <input type="text" id="task-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Description</label>
+                    <textarea id="task-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Priority</label>
+                    <select id="task-priority" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="low">Low</option>
+                        <option value="meduim">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Status</label>
+                    <select id="task-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="todo">To Do</option>
+                        <option value="doing">Doing</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                        Create Task
+                    </button>
+                    <button type="button" id="cancel-btn" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg font-medium transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <main class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -25,7 +71,6 @@
                     To Do
                 </h2>
                 <div id="todo-column" class="space-y-3 min-h-[400px] p-2 rounded-lg transition-colors" data-status="todo">
-                    <!-- Tasks will be inserted here by JavaScript -->
                 </div>
             </div>
 
@@ -36,7 +81,6 @@
                     Doing
                 </h2>
                 <div id="doing-column" class="space-y-3 min-h-[400px] p-2 rounded-lg transition-colors" data-status="doing">
-                    <!-- Tasks will be inserted here by JavaScript -->
                 </div>
             </div>
 
@@ -47,7 +91,6 @@
                     Done
                 </h2>
                 <div id="done-column" class="space-y-3 min-h-[400px] p-2 rounded-lg transition-colors" data-status="done">
-                    <!-- Tasks will be inserted here by JavaScript -->
                 </div>
             </div>
         </div>

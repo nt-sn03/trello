@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_page, workspace_page, TaksView
+from .views import home_page, workspace_page, TaksView, TakDetailView
 
 
 urlpatterns = [
@@ -8,5 +8,6 @@ urlpatterns = [
 
     # apis
     path('tasks/', TaksView.as_view(), name='tasks'),
+    path('tasks/<int:id>/', TakDetailView.as_view(), name='task-detail'),
 ]
 

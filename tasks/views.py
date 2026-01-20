@@ -66,5 +66,37 @@ class TaksView(View):
 
             return JsonResponse({'message': 'ok'})
 
-        return JsonResponse({'message': 'error'})
+        return JsonResponse({'message': 'error'}, status=400)
 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TakDetailView(View):
+
+    def put(self, request: HttpRequest, id: int) -> JsonResponse:
+        task = Task.objects.filter(id=id).first()
+
+        if not task:
+            return JsonResponse({'message': 'error'}, status=400)
+        
+        try:
+            body = request.body.decode('utf-8')
+            data = json.loads(body)
+            
+            if 'status' in data:
+                task.status = data['status']
+                task.save()
+                return JsonResponse({'message': 'ok'})
+            else:
+                return JsonResponse({'message': 'error'}, status=400)
+        except Exception as e:
+            return JsonResponse({'message': 'error'}, status=400)
+
+    def delete(self, request: HttpRequest, id: int) -> JsonResponse:
+        task = Task.objects.filter(id=id).first()
+
+        if not task:
+            return JsonResponse({'message': 'error'}, status=400)
+        
+        task.delete()
+
+        return JsonResponse({'message': 'deleted'})

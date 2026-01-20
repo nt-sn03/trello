@@ -1,81 +1,125 @@
-// Sample tasks matching Django model structure
-const tasks = [
-    {
-        id: 1,
-        title: "Design new landing page",
-        description: "Create mockups for the new landing page with modern UI",
-        due_date: null,
-        attechment: null,
-        status: "todo",
-        priority: "high"
-    },
-    {
-        id: 2,
-        title: "Fix login bug",
-        description: "Users are unable to login with special characters in password",
-        due_date: null,
-        attechment: null,
-        status: "todo",
-        priority: "medium"
-    },
-    {
-        id: 3,
-        title: "Update documentation",
-        description: "Add API documentation for new endpoints",
-        due_date: null,
-        attechment: null,
-        status: "doing",
-        priority: "low"
-    },
-    {
-        id: 4,
-        title: "Implement drag and drop",
-        description: "Add drag and drop functionality to task board",
-        due_date: null,
-        attechment: null,
-        status: "doing",
-        priority: "high"
-    },
-    {
-        id: 5,
-        title: "Setup CI/CD pipeline",
-        description: "Configure GitHub Actions for automated testing and deployment",
-        due_date: null,
-        attechment: null,
-        status: "done",
-        priority: "medium"
-    }
-];
+const API_URL = '/tasks/';
+let tasks = [];
 
-// Priority color mapping
 const priorityColors = {
     low: "bg-blue-100 text-blue-800",
-    medium: "bg-yellow-100 text-yellow-800",
+    meduim: "bg-yellow-100 text-yellow-800",
     high: "bg-red-100 text-red-800"
 };
 
-// Create task card element
+async function fetchTasks() {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Failed to fetch tasks');
+        tasks = await response.json();
+        renderTasks();
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+        alert('Failed to load tasks');
+    }
+}
+
+async function createTask(taskData) {
+    try {
+        const formData = new FormData();
+        formData.append('title', taskData.title);
+        
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) throw new Error('Failed to create task');
+        
+        const result = await response.json();
+        if (result.message === 'ok') {
+            await fetchTasks();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error creating task:', error);
+        return false;
+    }
+}
+
+async function updateTaskStatus(taskId, newStatus) {
+    try {
+        const response = await fetch(`${API_URL}${taskId}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (!response.ok) throw new Error('Failed to update task');
+        
+        const result = await response.json();
+        return result.message === 'ok';
+    } catch (error) {
+        console.error('Error updating task status:', error);
+        return false;
+    }
+}
+
+async function deleteTask(taskId) {
+    try {
+        const response = await fetch(`${API_URL}${taskId}/`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Failed to delete task');
+        
+        const result = await response.json();
+        if (result.message === 'deleted') {
+            await fetchTasks();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        return false;
+    }
+}
+
 function createTaskCard(task) {
     const card = document.createElement("div");
-    card.className = "task-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-move";
+    card.className = "task-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-move relative";
     card.draggable = true;
     card.dataset.taskId = task.id;
     card.dataset.status = task.status;
 
     card.innerHTML = `
-        <h3 class="font-semibold text-gray-800 mb-2">${task.title}</h3>
+        <button class="delete-btn absolute top-2 right-2 text-gray-400 hover:text-red-600 transition" data-task-id="${task.id}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <h3 class="font-semibold text-gray-800 mb-2 pr-6">${task.title}</h3>
         ${task.description ? `<p class="text-sm text-gray-600 mb-3">${task.description}</p>` : ''}
         <div class="flex items-center justify-between">
             <span class="text-xs px-2 py-1 rounded-full font-medium ${priorityColors[task.priority]}">
                 ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
             </span>
+            ${task.due_date ? `<span class="text-xs text-gray-500">${new Date(task.due_date).toLocaleDateString()}</span>` : ''}
         </div>
     `;
+
+    const deleteBtn = card.querySelector('.delete-btn');
+    deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (confirm('Are you sure you want to delete this task?')) {
+            const success = await deleteTask(task.id);
+            if (!success) {
+                alert('Failed to delete task');
+            }
+        }
+    });
 
     return card;
 }
 
-// Render all tasks
 function renderTasks() {
     const todoColumn = document.getElementById("todo-column");
     const doingColumn = document.getElementById("doing-column");
@@ -100,7 +144,6 @@ function renderTasks() {
     initializeDragAndDrop();
 }
 
-// Drag and drop functionality
 let draggedElement = null;
 
 function initializeDragAndDrop() {
@@ -129,6 +172,11 @@ function handleDragStart(e) {
 
 function handleDragEnd(e) {
     this.style.opacity = "1";
+    
+    const columns = document.querySelectorAll("[data-status]");
+    columns.forEach(column => {
+        column.classList.remove("bg-indigo-50", "border-2", "border-dashed", "border-indigo-300");
+    });
 }
 
 function handleDragOver(e) {
@@ -146,35 +194,90 @@ function handleDragEnter(e) {
 }
 
 function handleDragLeave(e) {
-    if (this.classList.contains("space-y-3")) {
+    if (e.currentTarget === this && this.classList.contains("space-y-3")) {
         this.classList.remove("bg-indigo-50", "border-2", "border-dashed", "border-indigo-300");
     }
 }
 
-function handleDrop(e) {
+async function handleDrop(e) {
     if (e.stopPropagation) {
         e.stopPropagation();
+    }
+    if (e.preventDefault) {
+        e.preventDefault();
     }
 
     this.classList.remove("bg-indigo-50", "border-2", "border-dashed", "border-indigo-300");
 
-    if (draggedElement !== this) {
+    if (draggedElement && draggedElement !== this) {
         const taskId = parseInt(draggedElement.dataset.taskId);
         const newStatus = this.dataset.status;
+        const oldStatus = draggedElement.dataset.status;
 
-        const task = tasks.find(t => t.id === taskId);
-        if (task) {
-            task.status = newStatus;
-            draggedElement.dataset.status = newStatus;
+        if (oldStatus !== newStatus) {
+            const success = await updateTaskStatus(taskId, newStatus);
+            
+            if (success) {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.status = newStatus;
+                }
+                renderTasks();
+            } else {
+                alert('Failed to update task status');
+                renderTasks();
+            }
         }
-
-        renderTasks();
     }
 
     return false;
 }
 
-// Initialize on page load
+const modal = document.getElementById('task-modal');
+const addTaskBtn = document.getElementById('add-task-btn');
+const cancelBtn = document.getElementById('cancel-btn');
+const taskForm = document.getElementById('task-form');
+
+addTaskBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+});
+
+cancelBtn.addEventListener('click', () => {
+    modal.classList.add('hidden');
+    taskForm.reset();
+});
+
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.classList.add('hidden');
+        taskForm.reset();
+    }
+});
+
+taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const title = document.getElementById('task-title').value.trim();
+    
+    if (!title) {
+        alert('Title is required');
+        return;
+    }
+    
+    const taskData = {
+        title: title
+    };
+    
+    const success = await createTask(taskData);
+    
+    if (success) {
+        modal.classList.add('hidden');
+        taskForm.reset();
+    } else {
+        alert('Error creating task. Please try again.');
+    }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
-    renderTasks();
+    fetchTasks();
 });
