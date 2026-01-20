@@ -10,7 +10,7 @@ class Task(models.Model):
 
     class PriorityChoices(models.TextChoices):
         LOW = 'low', 'Low'
-        MEDIUM = 'meduim', 'Meduim'
+        MEDIUM = 'medium', 'Medium'
         HIGH = 'high', 'High'
 
     title = models.CharField(max_length=255)

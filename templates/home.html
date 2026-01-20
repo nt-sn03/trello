@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Trello-like Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-16">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-6xl font-bold text-gray-800 mb-6">TaskFlow</h1>
+            <p class="text-xl text-gray-600 mb-4">Organize your work with a simple Trello-style task manager</p>
+            <p class="text-lg text-gray-500 mb-12">Drag, drop, and manage your tasks across To Do, Doing, and Done columns</p>
+            <a href="{% url "workspace" %}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
+                Go to Workspace
+            </a>
+        </div>
+        <div class="mt-20 max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="text-indigo-600 text-4xl mb-4">📋</div>
+                <h3 class="text-xl font-semibold mb-2">To Do</h3>
+                <p class="text-gray-600">Plan your tasks and set priorities</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="text-indigo-600 text-4xl mb-4">⚡</div>
+                <h3 class="text-xl font-semibold mb-2">Doing</h3>
+                <p class="text-gray-600">Track your work in progress</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="text-indigo-600 text-4xl mb-4">✓</div>
+                <h3 class="text-xl font-semibold mb-2">Done</h3>
+                <p class="text-gray-600">Celebrate your accomplishments</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
