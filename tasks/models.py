@@ -21,11 +21,13 @@ class Task(models.Model):
         max_length=5,
         choices=StatusChoices.choices,
         default=StatusChoices.TODO,
+        blank=True,
     )
     priority = models.CharField(
         max_length=6,
         choices=PriorityChoices.choices,
         default=PriorityChoices.LOW,
+        blank=True,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
