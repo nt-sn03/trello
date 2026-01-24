@@ -10,6 +10,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(blank=True, default='')
     image = models.ImageField(upload_to='categery_images/%Y/%m/%d/', blank=True, null=True)
+    is_active = models.BooleanField(default=False, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:

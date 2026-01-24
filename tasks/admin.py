@@ -4,9 +4,47 @@ from django.utils.html import format_html
 from .models import Task, Attechment, SubTask, Category
 
 
+class IsActiveFilter(admin.SimpleListFilter):
+    title = 'Holati'
+    parameter_name = 'is_active'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', 'Ha'),
+            ('0', 'Yo\'q'),
+        )
+    
+    def choices(self, changelist):
+        yield {
+            'selected': self.value() is None,
+            'query_string': changelist.get_query_string(
+                remove=[self.parameter_name]
+            ),
+            'display': 'Hammasi',
+        }
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': changelist.get_query_string(
+                    {self.parameter_name: lookup}
+                ),
+                'display': title,
+            }
+
+    def queryset(self, request, queryset):
+        if self.value() == '1':
+            return queryset.filter(is_active=True)
+        if self.value() == '0':
+            return queryset.filter(is_active=False)
+        return queryset
+
+
 @admin.register(Category)
 class CategoryModelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'colored_slug', 'display_description', 'display_image')
+    list_display = ('name', 'colored_slug', 'display_description', 'display_image', 'is_active')
+    empty_value_display = 'No'
+    list_display_links = ('name', 'colored_slug', 'display_description', 'display_image')
+    list_filter = (IsActiveFilter, )
 
     @admin.display(description='Description')
     def display_description(self, obj):
@@ -27,7 +65,7 @@ class CategoryModelAdmin(admin.ModelAdmin):
                 obj.image.url
             )
         else:
-            return '-'
+            return self.empty_value_display
 
 
 @admin.register(Task)
